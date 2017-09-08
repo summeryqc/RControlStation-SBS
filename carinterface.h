@@ -64,7 +64,7 @@ public:
     NmeaWidget* getNmeaWidget();
     double getSpeed();
     void setUpdateRouteFromMap(bool enabled);
-    void setRPiClock();
+    void setRPiClock();    
 #endif 
 
 signals:
@@ -118,6 +118,11 @@ private slots:
     void on_dwAnch1GetButton_clicked();
     void on_dwAnch2GetButton_clicked();
     void on_dwClearSamplesButton_clicked();
+
+#ifdef HAS_SBS
+    void on_checkBox_toggled(bool checked);
+    void on_pollBox_toggled(bool checked);
+#endif
 
 private:
     Ui::CarInterface *ui;

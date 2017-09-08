@@ -564,9 +564,6 @@ void PacketInterface::processPacket(const unsigned char *data, int len)
         state.roll = utility::buffer_get_double32(data, 1e6, &ind);
         state.pitch = utility::buffer_get_double32(data, 1e6, &ind);
         state.yaw = utility::buffer_get_double32(data, 1e6, &ind);
-        // ************* TEST **************
-//        yaw_old = utility::buffer_get_double32(data, 1e6, &ind);
-        // *********************************
         state.accel[0] = utility::buffer_get_double32(data, 1e6, &ind);
         state.accel[1] = utility::buffer_get_double32(data, 1e6, &ind);
         state.accel[2] = utility::buffer_get_double32(data, 1e6, &ind);
@@ -589,36 +586,51 @@ void PacketInterface::processPacket(const unsigned char *data, int len)
         state.ap_rad = utility::buffer_get_double32(data, 1e6, &ind);
         state.ms_today = utility::buffer_get_int32(data, &ind);
 
-        // ************* TEST **************
-//        if (abs((yaw_old + yaw_ofs) - yaw_new) > 5) {
+#ifdef HAS_SBS
+        // Log
+        if (enableLog) {
+            QString carState;
+            QTime time;
+            ++sample;
 
-//            roll = atan2(-state.accel[1], state.accel[2]);
-//            sr = sin(roll);
-//            cr = cos(roll);
+            if (mFirstPoll) {
+                mFirstPoll = false;
+                sample = 0;
+                carState = " - - - Poll started at " + time.currentTime().toString("hh:mm:ss.zzzzz") + " - - -";
+            }
 
-//            pitch = atan(-state.accel[0] / (-state.accel[1] * sr + state.accel[2] * cr));
-//            sp = sin(pitch);
-//            cp = cos(pitch);
+            carState += "\nsample:\t" + QString().number(sample) + "\n";
+            carState += "timestamp:\t" + time.currentTime().toString("hh:mm:ss.zzzzz") + "\n";
+            carState += "id:\t" + QString().number(id) + "\n";
+            carState += "roll:\t" + QString().number(state.roll) + "\n";
+            carState += "pitch:\t" + QString().number(state.pitch) + "\n";
+            carState += "yaw:\t" + QString().number(state.yaw) + "\n";
+            carState += "accel_0:\t" + QString().number(state.accel[0]) + "\n";
+            carState += "accel_1:\t" + QString().number(state.accel[1]) + "\n";
+            carState += "accel_2:\t" + QString().number(state.accel[2]) + "\n";
+            carState += "gyro_0:\t" + QString().number(state.gyro[0]) + "\n";
+            carState += "gyro_1:\t" + QString().number(state.gyro[1]) + "\n";
+            carState += "gyro_2:\t" + QString().number(state.gyro[2]) + "\n";
+            carState += "mag_0:\t" + QString().number(state.mag[0]) + "\n";
+            carState += "mag_1:\t" + QString().number(state.mag[1]) + "\n";
+            carState += "mag_2:\t" + QString().number(state.mag[2]) + "\n";
+            carState += "px:\t" + QString().number(state.px) + "\n";
+            carState += "py:\t" + QString().number(state.py) + "\n";
+            carState += "speed:\t" + QString().number(state.speed) + "\n";
+            carState += "vin:\t" + QString().number(state.vin) + "\n";
+            carState += "temp_fet:\t" + QString().number(state.temp_fet) + "\n";
+            carState += "mc_fault:\t" + QString().number(state.mc_fault) + "\n";
+            carState += "px_gps:\t" + QString().number(state.px_gps) + "\n";
+            carState += "py_gps:\t" + QString().number(state.py_gps) + "\n";
+            carState += "ap_goal_px:\t" + QString().number(state.ap_goal_px) + "\n";
+            carState += "ap_goal_py:\t" + QString().number(state.ap_goal_py) + "\n";
+            carState += "ap_rad:\t" + QString().number(state.ap_rad) + "\n";
+            carState += "ms_today:\t" + QString().number(state.ms_today) + "\n";
 
-//            c_mx = state.mag[0] * cp + state.mag[1] * sr * sp + state.mag[2] * sp * cr;
-//            c_my = state.mag[1] * cr - state.mag[2] * sr;
-//            yaw_new = atan2(-c_my, c_mx);
-
-
-//            yawSamples[interval] = yaw_new;
-
-//            double sum;
-//            for (int i=0; i<100; ++i) {
-//                sum += yawSamples[i];
-//            }
-//            yaw1Avg = sum/100;
-//        }
-
-//        state.yaw = yaw_new;
-
-//        yaw = atan2(Y, X);
-
-        // *********************************
+            QTextStream outstream(outputFile);
+            outstream << carState;
+        }
+#endif
 
         emit stateReceived(id, state);
     } break;
@@ -1071,7 +1083,7 @@ void PacketInterface::setRcControlCurrentBrake(quint8 id, double current, double
     sendPacket(mSendBuffer, send_index);
 }
 
-void PacketInterface::setRcControlDuty(quint8 id, double duty, double steering)
+void PacketInterface::setRcControlDuty(quint8 id, double duty, double steering) // *
 {
     qint32 send_index = 0;
     mSendBuffer[send_index++] = id;
@@ -1210,3 +1222,36 @@ void PacketInterface::mrOverridePower(quint8 id, double fl_f, double bl_l, doubl
     utility::buffer_append_double32_auto(mSendBuffer, br_b, &send_index);
     sendPacket(mSendBuffer, send_index);
 }
+
+#ifdef HAS_SBS
+void PacketInterface::setFirstPoll(bool checked)
+{
+    mFirstPoll = checked;
+}
+
+void PacketInterface::setLogEnabled(bool enable)
+{
+    enableLog = enable;
+
+    if (enableLog) {
+        // Create a log folder
+        QString folderPath = qApp->applicationDirPath() + "/Logs";
+
+        if (!QDir(folderPath).exists()) {
+            QDir().mkdir(folderPath);
+        }
+
+        // Create file path
+        QDate qdate;
+        QString outputFilePath = folderPath + qdate.currentDate().toString("/yyyy_MM_dd_") + "carStateLog.txt";
+
+        // Create and open log file
+        outputFile = new QFile(outputFilePath);
+        if (!outputFile->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append))
+        {
+            qDebug() << "Error - packetinterface.cpp, line 101\nCan not open file";
+        }
+    }
+}
+
+#endif

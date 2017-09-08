@@ -45,15 +45,6 @@ private slots:
     void on_nmeaLogActiveBox_toggled(bool checked);
     void on_nmeaServerActiveBox_toggled(bool checked);
 
-#ifdef HAS_SBS
-//    void on_pushButton_clicked();
-//    void on_pushButton_2_clicked();
-#endif
-
-    void on_pushButton_2_clicked();
-
-    void on_pushButton_clicked();
-
 private:
     Ui::NmeaWidget *ui;
     TcpBroadcast *mNmeaForwardServer;

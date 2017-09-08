@@ -569,9 +569,11 @@ void BaseStation::configTimerSlot()
 
 bool BaseStation::isValid()
 {   
-    if (fabs(lastOkPosX - mXNow) < 50
-            && fabs(lastOkPosY - mYNow) < 50
-            && fabs(lastOkPosZ - mZNow) < 50) {        
+    double maxError = 0.001;
+
+    if (fabs(lastOkPosX - mXNow) < maxError
+            && fabs(lastOkPosY - mYNow) < maxError
+            && fabs(lastOkPosZ - mZNow) < maxError) {
         valid = true;
         return 1;
 

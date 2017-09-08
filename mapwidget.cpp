@@ -200,10 +200,6 @@ MapWidget::MapWidget(QWidget *parent) : QWidget(parent)
             this, SLOT(errorGetTile(QString)));
 
     setMouseTracking(true);
-
-#ifdef HAS_SBS
-    mCalibrateYawEnable = false;
-#endif
 }
 
 CarInfo *MapWidget::getCarInfo(int car)
@@ -1371,9 +1367,6 @@ void MapWidget::mouseReleaseEvent(QMouseEvent *e)
 
 void MapWidget::wheelEvent(QWheelEvent *e)
 {
-#ifdef HAS_SBS
-    if (mCalibrateYawEnable) {
-#endif
         if (e->modifiers() & Qt::ControlModifier && mSelectedCar >= 0) {
             for (int i = 0;i < mCarInfo.size();i++) {
                 CarInfo &carInfo = mCarInfo[i];
@@ -1387,9 +1380,6 @@ void MapWidget::wheelEvent(QWheelEvent *e)
                     update();
                 }
             }
-#ifdef HAS_SBS
-        }
-#endif
 
         for (int i = 0;i < mCopterInfo.size();i++) {
             CopterInfo &copterInfo = mCopterInfo[i];
@@ -1475,8 +1465,6 @@ void MapWidget::setRouteNow(int routeNow)
         mRoutes.append(l);
     }
     update();
-
-//    qDebug() << "mRouteNow: " << mRouteNow;
 }
 
 int MapWidget::getInfoTraceNow() const
@@ -1730,10 +1718,6 @@ void MapWidget::removeLastPoint()
 {
     mRoutes[mRouteNow].removeLast();
     update();
-}
-
-void MapWidget::setCalibrateYaw(bool calibrateYawEnable) {
-    mCalibrateYawEnable = calibrateYawEnable;
 }
 #endif
 

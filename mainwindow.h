@@ -148,10 +148,7 @@ private slots:
 
 #ifdef HAS_SBS
     void xboxButtonToggled(bool checked);
-    void on_checkBox_toggled(bool checked);
 #endif
-
-
 
 private:
     Ui::MainWindow *ui;
@@ -180,7 +177,6 @@ private:
     double mBrakeValue;
     double mSpeed;
     double mLimit;
-
 
     bool mL1;
     bool mR1;

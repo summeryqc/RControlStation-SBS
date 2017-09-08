@@ -1699,11 +1699,6 @@ void MainWindow::setY(bool Y) {
 void MainWindow::setA(bool A) {
     mA = A;
 }
-
-void MainWindow::on_checkBox_toggled(bool checked)
-{
-    ui->mapWidget->setCalibrateYaw(checked);
-}
 #endif
 
 

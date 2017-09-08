@@ -1010,7 +1010,21 @@ void CarInterface::setRPiClock()
 {
     on_setClockPiButton_clicked();
 }
+
+void CarInterface::on_checkBox_toggled(bool checked)
+{
+    mPacketInterface->setLogEnabled(checked);
+}
+
+void CarInterface::on_pollBox_toggled(bool checked)
+{
+    mPacketInterface->setFirstPoll(checked);
+}
 #endif
+
+
+
+
 
 
 

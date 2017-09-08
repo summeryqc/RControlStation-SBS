@@ -16,6 +16,8 @@ QT       += opengl
 # VCC iTransit Steer-By-Server
 DEFINES += HAS_SBS
 
+
+
 contains(DEFINES, HAS_SBS) {
     RC_ICONS += Car-96_white.ico
     QT += gamepad

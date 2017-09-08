@@ -25,6 +25,13 @@
 #include "datatypes.h"
 #include "locpoint.h"
 
+#ifdef HAS_SBS
+#include <QFile>
+#include <QDate>
+#include <QDir>
+#include <QApplication>
+#endif
+
 class PacketInterface : public QObject
 {
     Q_OBJECT
@@ -62,6 +69,11 @@ public:
                          double lon = 0,
                          double height = 0,
                          int retries = 10);
+
+#ifdef HAS_SBS
+    void setFirstPoll(bool checked);
+    void setLogEnabled(bool enable);
+#endif
 
 signals:
     void dataToSend(QByteArray &data);
@@ -132,7 +144,15 @@ private:
     unsigned char mCrcHigh;
 
 #ifdef HAS_SBS
-    bool calibrateYaw = false;
+    int interval = 0;
+    bool doAvg = false;
+    bool once = true;
+    double yawSamples[500];
+    bool mFirstPoll;
+    bool enableLog = false;
+    QFile* outputFile;
+    ulong sample;
+    double ofs = 0;
 #endif
     
 };

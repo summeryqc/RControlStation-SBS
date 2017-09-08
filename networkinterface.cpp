@@ -22,7 +22,6 @@
 #ifdef HAS_SBS
 #include "nmeawidget.h"
 #include "basestation.h"
-#include <QDate>
 #endif
 
 NetworkInterface::NetworkInterface(QWidget *parent) :
@@ -50,19 +49,6 @@ NetworkInterface::NetworkInterface(QWidget *parent) :
             this, SLOT(pollTimerSlot()));
 
     tcpConnectionChanged(false);
-
-#ifdef HAS_SBS
-    QDateTime qdate;
-    QString outputFilePath = qApp->applicationDirPath() + "/Logs/" /*+ QString(qdate.date().toString("yyyy_mm_dd"))*/ + "carStateLog.txt";
-
-    qDebug() << outputFilePath;
-
-    outputFile = new QFile(outputFilePath);
-    if (!outputFile->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append))
-    {
-        qDebug() << "Error - networkinterface.cpp, line 59\nCan not open file";
-    }
-#endif
 }
 
 NetworkInterface::~NetworkInterface()
@@ -105,102 +91,6 @@ void NetworkInterface::sendState(quint8 id, const CAR_STATE &state)
     stream.writeTextElement("roll", QString::number(state.roll));
     stream.writeTextElement("pitch", QString::number(state.pitch));
     stream.writeTextElement("yaw", QString::number(state.yaw));
-
-
-
-//    // ********** TEST **********
-//    ++interval;
-//    if (interval == 100) {
-//        interval = 0;
-//        doAvg = true;
-//    }
-
-//    double accel_0;
-//    double accel_1;
-//    double accel_2;
-//    double mag_0;
-//    double mag_1;
-//    double mag_2;
-
-//    double roll;
-//    double sr;
-//    double cr;
-
-//    double pitch;
-//    double sp;
-//    double cp;
-
-//    double c_mx;
-//    double c_my;
-//    double yaw;
-
-//    double cy;
-//    double sy;
-
-//    double q0;
-//    double q1;
-//    double q2;
-//    double q3;
-
-//    double yaw1;
-//    double yaw1Avg = 0;
-//    double yaw1Raw = 0;
-
-//    accel_0 = state.accel[0];
-//    accel_1 = state.accel[1];
-//    accel_2 = state.accel[2];
-//    mag_0 = state.mag[0];
-//    mag_1 = state.mag[1];
-//    mag_2 = state.mag[2];
-
-//    roll = atan2(-accel_1, accel_2);
-//    sr = sin(roll);
-//    cr = cos(roll);
-
-//    pitch = atan(-accel_0 / (-accel_1 * sr + accel_2 * cr));
-//    sp = sin(pitch);
-//    cp = cos(pitch);
-
-//    c_mx = mag_0 * cp + mag_1 * sr * sp + mag_2 * sp * cr;
-//    c_my = mag_1 * cr - mag_2 * sr;
-//    yaw1 = atan2(-c_my, c_mx);
-
-//    cr = cos(-roll * 0.5);
-//    sr = sin(-roll * 0.5);
-//    cp = cos(pitch * 0.5);
-//    sp = sin(pitch * 0.5);
-//    cy = cos(-yaw1 * 0.5);
-//    sy = sin(-yaw1 * 0.5);
-
-//    q0 = cr * cp * cy + sr * sp * sy;
-//    q1 = sr * cp * cy - cr * sp * sy;
-//    q2 = cr * sp * cy + sr * cp * sy;
-//    q3 = cr * cp * sy - sr * sp * cy;
-
-//    yaw1 = -atan2(q0 * q3 + q1 * q2, 0.5 - (q2 * q2 + q3 * q3));
-
-//    yaw1 = 180 - (yaw1*(180/M_PI));
-
-//    yawSamples[interval] = yaw1;
-
-//    if (doAvg) {
-//        double sum;
-//        for (int i=0; i<100; ++i) {
-//            sum += yawSamples[i];
-//        }
-//        yaw1Avg = sum/100;
-//    }
-
-//    yaw1Raw = atan2(mag_1, mag_0);
-
-////    qDebug() << "yaw1:\t" << yaw1 << "\tyaw1Avg:\t" << yaw1Avg << "\tyaw1Raw:\t" << yaw1Raw;
-//    qDebug() << "mag_0:\t" << mag_0 << "\tmag_1:\t" << mag_1 << "\tmag_2:\t" << mag_2 << "\tatan2(mag_1, mag_0):\t" << atan2(mag_1, mag_0) << "\tyaw1Avg:\t" << yaw1Avg;
-
-////    stream.writeTextElement("yaw", QString::number(yaw));
-//    // **************************
-
-
-
     stream.writeTextElement("accel_0", QString::number(state.accel[0]));
     stream.writeTextElement("accel_1", QString::number(state.accel[1]));
     stream.writeTextElement("accel_2", QString::number(state.accel[2]));
@@ -225,21 +115,6 @@ void NetworkInterface::sendState(quint8 id, const CAR_STATE &state)
 
     stream.writeEndDocument();
     sendData(data);
-
-
-
-    // ********** TEST **********
-//    DataAsString += QString(data.toStdString().c_str()) + "\n";
-
-//    QString carState;
-//    carState = "\nid:\t" + QString().number(id) + "\n";
-//    carState += "roll:\t" + QString().number(state.roll) + "\n";
-//    carState += "pitch:\t" + QString().number(state.pitch) + "\n";
-//    carState += "yaw:\t" + QString().number(state.yaw) + "\n";
-
-//    QTextStream outstream(outputFile);
-//    outstream << carState;
-    // **************************
 }
 
 void NetworkInterface::sendEnuRef(quint8 id, double lat, double lon, double height)
@@ -749,10 +624,6 @@ void NetworkInterface::processXml(const QByteArray &xml)
                         continue;
                     }
 
-//                    qDebug() << "";
-//                    qDebug() << "route.size(): " << route.size();
-//                    qDebug() << "route.isEmpty(): " << route.isEmpty();
-
                     // Has no function
                     if (route.isEmpty()) {
                         route.append(p);
@@ -784,110 +655,6 @@ void NetworkInterface::processXml(const QByteArray &xml)
                             mMap->addRoutePoint(p.getX(), p.getY(), p.getSpeed(), p.getTime());
                         }
                     }
-
-
-
-
-
-
-
-
-
-
-
-
-// *** Old addRoutePonit
-
-//        } else if (name == "addRoutePoint" || name == "replaceRoute") {
-//            quint8 id = 0;
-//            double px = 0.0;
-//            double py = 0.0;
-//            double speed = 0.0;
-//            int time = 0;
-//            bool ok = true;
-
-//            while (stream.readNextStartElement()) {
-//                QString name2 = stream.name().toString();
-
-//                if (name2 == "id") {
-//                    id = stream.readElementText().toInt();
-//                } else if (name2 == "px") {
-//                    px = stream.readElementText().toDouble();
-//                } else if (name2 == "py") {
-//                    py = stream.readElementText().toDouble();
-//                } else if (name2 == "speed") {
-//                    speed = stream.readElementText().toDouble();
-//                } else if (name2 == "time") {
-//                    time = stream.readElementText().toInt();
-//                } else {
-//                    QString str;
-//                    str += "argument not found: " + name2;
-//                    sendError(str, name);
-//                    stream.skipCurrentElement();
-//                    ok = false;
-//                }
-//            }
-
-//            if (stream.hasError()) {
-//                break;
-//            }
-
-//            if (!ok) {
-//                continue;
-//            }
-
-//            if (!ui->disableSendCarBox->isChecked() && mPacketInterface) {
-//                LocPoint p;
-//                p.setXY(px, py);
-//                p.setSpeed(speed);
-//                p.setTime(time);
-//                QList<LocPoint> route;
-//                route.append(p);
-
-//                if (name == "addRoutePoint") {
-
-
-//                    //
-//                    sendOk(id);
-//                    //
-
-
-//                    if (!mPacketInterface->setRoutePoints(id, route)) {
-//                        sendError("No ACK received from car. Make sure that the car connection "
-//                                  "works.", name);
-//                    }
-//                } else {
-//                    if (!mPacketInterface->replaceRoute(id, route)) {
-//                        sendError("No ACK received from car. Make sure that the car connection "
-//                                  "works.", name);
-//                    }
-//                }
-//            }
-
-//            if (mMap && ui->plotRouteMapBox->isChecked()) {
-
-//#ifdef HAS_SBS
-//                mMap->setRouteNow(id);
-//#endif
-
-//                if (name == "replaceRoute") {
-//                    mMap->clearRoute();
-//                }
-
-//                mMap->addRoutePoint(px, py, speed, time);
-//            }
-
-
-
-
-
-
-
-
-
-
-
-
 
         } else if (name == "removeLastPoint") {
             quint8 id = 0;
@@ -921,11 +688,13 @@ void NetworkInterface::processXml(const QByteArray &xml)
                               "works.", name);
                 }
             }
+
 #ifdef HAS_SBS // Might work without, since clear route doesn't have this
             if (mMap && ui->plotRouteMapBox->isChecked()) {
                 mMap->removeLastPoint();
             }
 #endif
+
         } else if (name == "clearRoute") {
             quint8 id = 0;
             bool ok = true;
@@ -1195,11 +964,11 @@ void NetworkInterface::processXml(const QByteArray &xml)
         }
     }
 
-//    if (stream.hasError()) {
-//        QString str;
-//        str += "XML Parse error: " + stream.errorString();
-//        sendError(str, name);
-//    }
+    if (stream.hasError()) {
+        QString str;
+        str += "XML Parse error: " + stream.errorString();
+        sendError(str, name);
+    }
 }
 
 void NetworkInterface::sendData(const QByteArray &data)

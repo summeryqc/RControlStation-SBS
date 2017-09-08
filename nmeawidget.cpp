@@ -126,16 +126,6 @@ void NmeaWidget::on_nmeaServerActiveBox_toggled(bool checked)
 }
 
 #ifdef HAS_SBS
-void NmeaWidget::on_pushButton_clicked()
-{
-    ui->nmeaFixTypeLabel->setText("RTK Float");
-}
-
-void NmeaWidget::on_pushButton_2_clicked()
-{
-    ui->nmeaFixTypeLabel->setText("RTK Fix");
-}
-
 QString NmeaWidget::getSolution()
 {
     return ui->nmeaFixTypeLabel->text();

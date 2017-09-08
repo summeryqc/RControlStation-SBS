@@ -31,7 +31,6 @@
 #include "basestation.h"
 #include "nmeawidget.h"
 #include "mainwindow.h"
-#include <QFile>
 #endif
 
 namespace Ui {
@@ -95,12 +94,6 @@ private:
     MainWindow *pMainWindow;
     QList<NmeaWidget*> pNmea;
     bool ready;
-
-    double yawSamples[100];
-    int interval = 0;
-    bool doAvg = false;
-
-    QFile* outputFile;
 #endif
 
 };

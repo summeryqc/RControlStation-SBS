@@ -113,7 +113,6 @@ public:
 
 #ifdef HAS_SBS
     void removeLastPoint();
-    void setCalibrateYaw(bool calibrateYawEnable);
 #endif   
 
 signals:
@@ -184,10 +183,6 @@ private:
                        double xStart, double xEnd, double yStart, double yEnd,
                        double min_dist);
     int getClosestPoint(LocPoint p, QList<LocPoint> points, double &dist);
-
-#ifdef HAS_SBS
-    bool mCalibrateYawEnable;
-#endif
 
 };
 
